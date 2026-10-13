@@ -1,9 +1,16 @@
 import express from 'express';
 import cors from 'cors';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { config } from './config.js';
 import { initDatabase } from '../../database/db.js';
 import contactRoutes from './routes/contactRoutes.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const clientDistPath = path.resolve(__dirname, '../../client/dist');
 
 const app = express();
 
@@ -45,10 +52,24 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Mount routes
+// Mount API routes
 app.use('/api/contacts', contactRoutes);
 
-// 404 & error handling
+// Serve static frontend build if present (for cloud/production deployments like Zoho Cloud)
+if (fs.existsSync(clientDistPath)) {
+  console.log(`📦 Serving static client build from: ${clientDistPath}`);
+  app.use(express.static(clientDistPath));
+  
+  // Catch-all for React client-side routing
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    res.sendFile(path.join(clientDistPath, 'index.html'));
+  });
+}
+
+// 404 & error handling for unmatched API routes
 app.use(notFoundHandler);
 app.use(errorHandler);
 
