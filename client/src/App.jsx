@@ -156,7 +156,39 @@ export default function App() {
   };
 
   const handleExportCsv = () => {
-    window.open(api.getExportCsvUrl(), '_blank');
+    try {
+      const headers = ['First Name', 'Last Name', 'Phone', 'Email', 'Category', 'Company', 'Job Title', 'Address', 'Favorite', 'Notes'];
+      const escapeCsv = (val) => {
+        if (val === null || val === undefined) return '""';
+        const str = String(val).replace(/"/g, '""');
+        return `"${str}"`;
+      };
+      const rows = contacts.map(c => [
+        escapeCsv(c.first_name),
+        escapeCsv(c.last_name),
+        escapeCsv(c.phone),
+        escapeCsv(c.email),
+        escapeCsv(c.category),
+        escapeCsv(c.company),
+        escapeCsv(c.job_title),
+        escapeCsv(c.address),
+        escapeCsv(c.is_favorite ? 'Yes' : 'No'),
+        escapeCsv(c.notes)
+      ].join(','));
+      const csvContent = [headers.join(','), ...rows].join('\r\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'contacts_export.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      showToast('Contacts exported to CSV successfully');
+    } catch {
+      window.open(api.getExportCsvUrl(), '_blank');
+    }
   };
 
   return (
