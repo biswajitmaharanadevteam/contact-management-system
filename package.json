@@ -1,0 +1,23 @@
+{
+  "name": "contact-management-system",
+  "version": "1.0.0",
+  "description": "Full-stack Contact Management System with React, Express, and SQLite in distinct folders",
+  "type": "module",
+  "scripts": {
+    "server": "npm --prefix server start",
+    "server:dev": "npm --prefix server run dev",
+    "client": "npm --prefix client run dev",
+    "client:build": "npm --prefix client run build",
+    "dev": "node dev.js",
+    "install:all": "npm --prefix server install && npm --prefix client install"
+  },
+  "keywords": [
+    "contact-management",
+    "full-stack",
+    "react",
+    "express",
+    "sqlite"
+  ],
+  "author": "",
+  "license": "ISC"
+}
